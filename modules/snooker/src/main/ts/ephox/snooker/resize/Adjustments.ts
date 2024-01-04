@@ -53,15 +53,19 @@ const adjustHeight = (table: SugarElement<HTMLTableElement>, delta: number, inde
 
   const newHeights = Arr.map(heights, (dy, i) => index === i ? Math.max(delta + dy, CellUtils.minHeight()) : dy);
 
-  const newCellSizes = Recalculations.recalculateHeightForCells(warehouse, newHeights);
+  // const newCellSizes = Recalculations.recalculateHeightForCells(warehouse, newHeights);
   const newRowSizes = Recalculations.matchRowHeight(warehouse, newHeights);
 
   Arr.each(newRowSizes, (row) => {
     Sizes.setHeight(row.element, row.height);
   });
 
-  Arr.each(newCellSizes, (cell) => {
-    Sizes.setHeight(cell.element, cell.height);
+  // Arr.each(newCellSizes, (cell) => {
+  //   Sizes.setHeight(cell.element, cell.height);
+  // });
+
+  Arr.each(Warehouse.justCells(warehouse), (cell) => {
+    Sizes.removeHeight(cell.element);
   });
 
   const total = sumUp(newHeights);

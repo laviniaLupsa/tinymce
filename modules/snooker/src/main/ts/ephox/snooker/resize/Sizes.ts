@@ -28,6 +28,10 @@ export const setHeight = (cell: SugarElement<HTMLElement>, amount: number): void
   Css.set(cell, 'height', amount + 'px');
 };
 
+export const removeHeight = (cell: SugarElement<HTMLElement>): void => {
+  Css.remove(cell, 'height');
+};
+
 const getHeightValue = (cell: SugarElement<HTMLElement>): string =>
   Height.getRuntime(cell) + 'px';
 
