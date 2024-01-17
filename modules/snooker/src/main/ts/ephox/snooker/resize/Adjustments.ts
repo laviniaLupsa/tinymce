@@ -13,7 +13,7 @@ import * as ColumnSizes from './ColumnSizes';
 import * as Recalculations from './Recalculations';
 import * as Sizes from './Sizes';
 
-const sumUp = (newSize: number[]) => Arr.foldr(newSize, (b, a) => b + a, 0);
+// const sumUp = (newSize: number[]) => Arr.foldr(newSize, (b, a) => b + a, 0);
 
 const recalculate = (warehouse: Warehouse, widths: number[]): Recalculations.CellWidthSpan<CellElement>[] => {
   if (Warehouse.hasColumns(warehouse)) {
@@ -53,22 +53,33 @@ const adjustHeight = (table: SugarElement<HTMLTableElement>, delta: number, inde
 
   const newHeights = Arr.map(heights, (dy, i) => index === i ? Math.max(delta + dy, CellUtils.minHeight()) : dy);
 
-  // const newCellSizes = Recalculations.recalculateHeightForCells(warehouse, newHeights);
   const newRowSizes = Recalculations.matchRowHeight(warehouse, newHeights);
+  const newCellSizes = Recalculations.recalculateHeightForCells(warehouse, newHeights);
 
   Arr.each(newRowSizes, (row) => {
     Sizes.setHeight(row.element, row.height);
   });
 
-  // Arr.each(newCellSizes, (cell) => {
-  //   Sizes.setHeight(cell.element, cell.height);
-  // });
+  Arr.each(newCellSizes, (cell) => {
+    Sizes.setHeight(cell.element, cell.height);
+  });
 
+  // TODO: `getHeight` could maybe accept HTMLTableRowElement as well, or even HTMLElement
+  const computedRowHeights = Arr.map(warehouse.all, (row) => ({ height: Sizes.getHeight(row.element as any), row }));
+
+  Arr.each(computedRowHeights, ({ row, height }) => {
+    Sizes.setHeight(row.element, height);
+  });
   Arr.each(Warehouse.justCells(warehouse), (cell) => {
     Sizes.removeHeight(cell.element);
   });
 
-  const total = sumUp(newHeights);
+  // Calc newHeights again:
+  // newHeights = Arr.map(ColumnSizes.getPixelHeights(warehouse, table, direction), (dy, i) => index === i ? Math.max(delta + dy, CellUtils.minHeight()) : dy);
+  // const total = sumUp(newHeights);
+
+  const total = Arr.foldr(computedRowHeights, (acc, { height }) => acc + height, 0) + (delta < 0 ? -30 : 0);
+  // const total = Sizes.getHeight(table as any);
   Sizes.setHeight(table, total);
 };
 
