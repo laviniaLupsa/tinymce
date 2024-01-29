@@ -62,7 +62,11 @@ const insertTemplate = (editor: Editor, _ui: boolean, html: string): void => {
 
   html = replaceTemplateValues(html, Options.getTemplateReplaceValues(editor));
   let el = dom.create('div', {}, parseAndSerialize(editor, html));
-
+  let spanEl=document.createElement('span');
+  if (el.children[0].nodeName.toLowerCase() == 'p') {
+    spanEl.innerHTML=html;
+    el.replaceChild(spanEl,el.children[0]);
+  }
   // Find template element within div
   const n = dom.select('.mceTmpl', el);
   if (n && n.length > 0) {
